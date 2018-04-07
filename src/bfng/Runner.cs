@@ -1,7 +1,6 @@
 ﻿using CommandLine;
 using System;
 using System.IO;
-using System.Linq;
 
 namespace bfng
 {
@@ -15,7 +14,16 @@ namespace bfng
 
         static void Run(RunOptions options)
         {
-            Console.WriteLine(options.File);
+            VerifyFileExists(options.File);
+        }
+
+        static void VerifyFileExists(string file)
+        {
+            if (!File.Exists(file))
+            {
+                Console.WriteLine("The Befunge file could not be found.");
+                Environment.Exit(2);
+            }
         }
     }
 }
