@@ -4,11 +4,10 @@ using System.Linq;
 
 namespace bfng
 {
-    class Program
+    class Runner
     {
         static void Main(string[] args)
         {
-            
         }
     }
 }
