@@ -3,7 +3,7 @@ using bfng.Parsing;
 using bfng.Runtime;
 using System;
 
-namespace bfng
+namespace bfng.Interpreting
 {
     public class Interpreter
     {
