@@ -8,10 +8,10 @@ namespace bfng
         [Value(0, MetaName = "file", Required = true, HelpText = "Befunge file to execute.")]
         public string File { get; set; }
 
-        [Option('w', Default = Lexer.DefaultBufferWidth, HelpText = "The width of the program.")]
+        [Option('w', Default = Lexer.DefaultBufferWidth, HelpText = "The width of the program grid.")]
         public int ProgramWidth { get; set; }
 
-        [Option('h', Default = Lexer.DefaultBufferHeight, HelpText = "The height of the program.")]
+        [Option('h', Default = Lexer.DefaultBufferHeight, HelpText = "The height of the program grid.")]
         public int ProgramHeight { get; set; }
     }
 }
