@@ -1,0 +1,44 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:bfng.dbgui.Converters;assembly=bfng.dbgui">
+    <UserControl.Resources>
+        <converters:ToggleBrushConverter x:Key="backgroundConverter">
+            <converters:ToggleBrushConverter.FalseBrush>
+                <SolidColorBrush Color="#007acc" />
+            </converters:ToggleBrushConverter.FalseBrush>
+            <converters:ToggleBrushConverter.TrueBrush>
+                <SolidColorBrush Color="#ca5100" />
+            </converters:ToggleBrushConverter.TrueBrush>
+        </converters:ToggleBrushConverter>
+    </UserControl.Resources>
+    <UserControl.Styles>
+        <Style Selector="TextBlock">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Margin" Value="5" />
+        </Style>
+    </UserControl.Styles>
+    <Design.Width>400</Design.Width>
+    <Border Background="{Binding IsDebugging, Converter={StaticResource backgroundConverter}}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock IsVisible="{Binding !IsDebugging}" Text="Idle" />
+                <TextBlock IsVisible="{Binding IsDebugging}" Text="Debugging" />
+                <TextBlock Text="{Binding BefungeFilePath, FallbackValue=File path}" />
+            </StackPanel>
+            <StackPanel
+                Grid.Column="2"
+                IsVisible="{Binding IsDebugging}"
+                Orientation="Horizontal">
+                <TextBlock Text="IP:" />
+                <TextBlock Text="{Binding InstructionPointer.X}" />
+                <TextBlock Text="{Binding InstructionPointer.Y}" />
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

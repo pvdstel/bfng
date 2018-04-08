@@ -1,0 +1,21 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.Width>400</Design.Width>
+    <StackPanel Orientation="Horizontal">
+        <StackPanel.Styles>
+            <Style Selector="Button">
+                <Setter Property="Margin" Value="10 10 0 10" />
+            </Style>
+        </StackPanel.Styles>
+        <Button
+            Command="{Binding StartDebuggingCommand}"
+            Content="Start debugging"
+            IsVisible="{Binding !IsDebugging}" />
+        <Button
+            Command="{Binding StartDebuggingCommand}"
+            Content="Restart"
+            IsVisible="{Binding IsDebugging}" />
+        <Button Command="{Binding StopDebuggingCommand}" Content="Stop debugging" />
+        <Button Command="{Binding StepDebuggerCommand}" Content="Step" />
+        <Button Command="{Binding RewindDebuggerCommand}" Content="Rewind" />
+    </StackPanel>
+</UserControl>
