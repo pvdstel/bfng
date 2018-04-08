@@ -20,6 +20,9 @@ namespace bfng
             Lexer lexer = new Lexer(options.ProgramWidth, options.ProgramHeight);
 
             Program program = lexer.Lex(programString);
+
+            Interpreter interpreter = new Interpreter();
+            interpreter.Execute(program);
         }
 
         static void VerifyFileExists(string file)
