@@ -33,21 +33,7 @@ namespace bfng.Runtime
 
         public void AdvanceInstructionPointer()
         {
-            switch (ExecutionDirection)
-            {
-                case ExecutionDirection.Right:
-                    InstructionPointer = new InstructionPointer((InstructionPointer.X + 1) % Program.Width, InstructionPointer.Y);
-                    break;
-                case ExecutionDirection.Left:
-                    InstructionPointer = new InstructionPointer(((InstructionPointer.X - 1) + Program.Width) % Program.Width, InstructionPointer.Y);
-                    break;
-                case ExecutionDirection.Down:
-                    InstructionPointer = new InstructionPointer(InstructionPointer.X, (InstructionPointer.Y + 1) % Program.Height);
-                    break;
-                case ExecutionDirection.Up:
-                    InstructionPointer = new InstructionPointer(InstructionPointer.X, ((InstructionPointer.Y - 1) + Program.Height) % Program.Height);
-                    break;
-            }
+            InstructionPointer = InstructionPointer.CreateNext(ExecutionDirection, Program.Width, Program.Height);
         }
 
         public Instruction GetInstruction(int x, int y)
