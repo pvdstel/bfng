@@ -16,6 +16,8 @@ namespace bfng
                 currentInstruction(context);
                 context.AdvanceInstructionPointer();
             }
+
+            Console.WriteLine();
         }
     }
 }
