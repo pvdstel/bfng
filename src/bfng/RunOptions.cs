@@ -16,5 +16,8 @@ namespace bfng
 
         [Option('T', Default = false, HelpText = "Whether timing debug information should be printed.")]
         public bool PrintTiming { get; set; }
+
+        [Option(Default = false, HelpText = "Suppresses interpreter output.")]
+        public bool DisableInterpreterOutput { get; set; }
     }
 }

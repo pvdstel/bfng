@@ -30,7 +30,15 @@ namespace bfng
             InstructionProgram instructionProgram = null;
             TimeAction(() => instructionProgram = new InstructionProgram(expressionProgram), options.PrintTiming, "Performed parsing in {0} ms.");
 
-            Interpreter interpreter = new Interpreter();
+            Interpreter interpreter;
+            if (options.DisableInterpreterOutput)
+            {
+                interpreter = new Interpreter(new NoOutputEnvironment());
+            }
+            else
+            {
+                interpreter = new Interpreter();
+            }
             TimeAction(() => interpreter.Execute(instructionProgram), options.PrintTiming, "Executed program in {0} ms.");
         }
 

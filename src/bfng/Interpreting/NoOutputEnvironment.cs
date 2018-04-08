@@ -3,7 +3,7 @@ using System;
 
 namespace bfng.Interpreting
 {
-    public class ConsoleEnvironment : IEnvironment
+    public class NoOutputEnvironment : IEnvironment
     {
         public char InputCharacter()
         {
@@ -17,12 +17,10 @@ namespace bfng.Interpreting
 
         public void OutputCharacter(char c)
         {
-            Console.Write(c);
         }
 
         public void OutputInteger(int i)
         {
-            Console.Write(i);
         }
     }
 }
