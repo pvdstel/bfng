@@ -1,5 +1,6 @@
 ﻿using bfng.Parsing;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace bfng.Runtime
 {
@@ -24,7 +25,7 @@ namespace bfng.Runtime
             MutatedInstructions = (Instruction[,])executionContext.MutatedInstructions.Clone();
             // Copy the mutated expressions (shallow copy is fine)
             MutatedExpressions = (char?[,])executionContext.MutatedExpressions.Clone();
-            Stack = new Stack<int>(executionContext.Stack);
+            Stack = new Stack<int>(executionContext.Stack.Reverse());
 
             IsRunning = executionContext.IsRunning;
             ExecutionDirection = executionContext.ExecutionDirection;
