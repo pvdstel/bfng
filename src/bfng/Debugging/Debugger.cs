@@ -36,7 +36,7 @@ namespace bfng.Debugging
             }
         }
 
-        public bool IsDebugging => CurrentState != null;
+        public bool IsDebugging => (CurrentState?.ExecutionContext.IsRunning).GetValueOrDefault();
         #endregion
 
         public void StartDebugging(InstructionProgram program)
@@ -53,7 +53,7 @@ namespace bfng.Debugging
 
         public void Step()
         {
-            if (!(CurrentState?.ExecutionContext.IsRunning).GetValueOrDefault()) return;
+            if (!IsDebugging) return;
 
             _history.Push(CurrentState);
 
@@ -69,7 +69,7 @@ namespace bfng.Debugging
 
         public void Rewind()
         {
-            if (!(CurrentState?.ExecutionContext.IsRunning).GetValueOrDefault()) return;
+            if (!IsDebugging) return;
             if (_history.Count == 0) return;
 
             CurrentState = _history.Pop();
