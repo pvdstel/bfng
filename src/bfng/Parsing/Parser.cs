@@ -1,6 +1,6 @@
-﻿using static bfng.Instructions;
+﻿using static bfng.Parsing.Instructions;
 
-namespace bfng
+namespace bfng.Parsing
 {
     public class Parser
     {

@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
-namespace bfng
+namespace bfng.Runtime
 {
     public static class SafeStack
     {

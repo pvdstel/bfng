@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using bfng.Runtime;
+using System;
 
-namespace bfng
+namespace bfng.Parsing
 {
     public class Instructions
     {

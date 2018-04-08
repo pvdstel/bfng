@@ -1,4 +1,5 @@
-﻿using CommandLine;
+﻿using bfng.Lexing;
+using CommandLine;
 using System;
 using System.IO;
 
