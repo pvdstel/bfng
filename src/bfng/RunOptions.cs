@@ -13,5 +13,8 @@ namespace bfng
 
         [Option('h', Default = Lexer.DefaultBufferHeight, HelpText = "The height of the program grid.")]
         public int ProgramHeight { get; set; }
+
+        [Option('T', Default = false, HelpText = "Whether timing debug information should be printed.")]
+        public bool PrintTiming { get; set; }
     }
 }

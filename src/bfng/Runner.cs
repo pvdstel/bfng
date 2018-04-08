@@ -3,6 +3,7 @@ using bfng.Lexing;
 using bfng.Parsing;
 using CommandLine;
 using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace bfng
@@ -19,14 +20,30 @@ namespace bfng
         {
             VerifyFileExists(options.File);
 
-            string programString = File.ReadAllText(options.File);
-            Lexer lexer = new Lexer(options.ProgramWidth, options.ProgramHeight);
+            string programString = null;
+            TimeAction(() => programString = File.ReadAllText(options.File), options.PrintTiming, "Read source file in {0} ms.");
 
-            ExpressionProgram expressionProgram = lexer.Lex(programString);
-            InstructionProgram instructionProgram = new InstructionProgram(expressionProgram);
+            Lexer lexer = new Lexer(options.ProgramWidth, options.ProgramHeight);
+            ExpressionProgram expressionProgram = null;
+            TimeAction(() => expressionProgram = lexer.Lex(programString), options.PrintTiming, "Performed lexing in {0} ms.");
+
+            InstructionProgram instructionProgram = null;
+            TimeAction(() => instructionProgram = new InstructionProgram(expressionProgram), options.PrintTiming, "Performed parsing in {0} ms.");
 
             Interpreter interpreter = new Interpreter();
-            interpreter.Execute(instructionProgram);
+            TimeAction(() => interpreter.Execute(instructionProgram), options.PrintTiming, "Executed program in {0} ms.");
+        }
+
+        static void TimeAction(Action action, bool print, string message)
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            action();
+
+            sw.Stop();
+            if (print) Console.WriteLine(string.Format(message, sw.ElapsedMilliseconds));
+
         }
 
         static void VerifyFileExists(string file)
