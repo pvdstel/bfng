@@ -15,6 +15,9 @@ namespace bfng
 
             IsRunning = true;
             ExecutionDirection = ExecutionDirection.Right;
+            InstructionPointer = new InstructionPointer(0, 0);
+
+            ParseExpressions();
         }
 
         public ExecutionContext(ExecutionContext executionContext)
