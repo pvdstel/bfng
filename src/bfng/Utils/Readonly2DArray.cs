@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace bfng.Utils
+﻿namespace bfng.Utils
 {
     /// <summary>
     /// A readonly two-dimensional array.
@@ -18,7 +14,7 @@ namespace bfng.Utils
         /// <param name="array">The array to use as a value.</param>
         public Readonly2DArray(T[,] array)
         {
-            _array = array ?? throw new ArgumentNullException(nameof(array));
+            _array = array ?? throw new System.ArgumentNullException(nameof(array));
         }
 
         /// <summary>
