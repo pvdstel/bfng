@@ -4,7 +4,7 @@ namespace bfng
 {
     public class Parser
     {
-        public Instruction Parse(char expression, bool strict = false)
+        public Instruction Parse(char expression)
         {
             switch (expression)
             {
