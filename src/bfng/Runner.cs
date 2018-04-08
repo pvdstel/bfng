@@ -1,5 +1,6 @@
 ﻿using bfng.Interpreting;
 using bfng.Lexing;
+using bfng.Parsing;
 using CommandLine;
 using System;
 using System.IO;
@@ -21,10 +22,11 @@ namespace bfng
             string programString = File.ReadAllText(options.File);
             Lexer lexer = new Lexer(options.ProgramWidth, options.ProgramHeight);
 
-            Program program = lexer.Lex(programString);
+            ExpressionProgram expressionProgram = lexer.Lex(programString);
+            InstructionProgram instructionProgram = new InstructionProgram(expressionProgram);
 
             Interpreter interpreter = new Interpreter();
-            interpreter.Execute(program);
+            interpreter.Execute(instructionProgram);
         }
 
         static void VerifyFileExists(string file)

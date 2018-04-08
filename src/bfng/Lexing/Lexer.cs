@@ -17,7 +17,7 @@ namespace bfng.Lexing
         public int BufferWidth { get; }
         public int BufferHeight { get; }
 
-        public Program Lex(string programString)
+        public ExpressionProgram Lex(string programString)
         {
             char[,] expressions = new char[BufferWidth, BufferHeight];
             string[] programLines = programString.Split(Environment.NewLine);
@@ -30,7 +30,7 @@ namespace bfng.Lexing
                 }
             }
 
-            return new Program(expressions);
+            return new ExpressionProgram(expressions);
         }
 
         private char GetCharAtPosition(string[] lines, int x, int y)

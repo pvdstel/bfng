@@ -1,8 +1,8 @@
 ﻿namespace bfng.Lexing
 {
-    public class Program
+    public class ExpressionProgram
     {
-        public Program(char[,] expressions)
+        public ExpressionProgram(char[,] expressions)
         {
             Expressions = expressions;
             Width = expressions.GetLength(0);

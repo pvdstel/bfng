@@ -93,7 +93,7 @@ namespace bfng.Parsing
             if (x >= 0 && x < e.Program.Width && y >= 0 && y < e.Program.Height)
             {
                 e.MutatedExpressions[x, y] = (char)v;
-                e.Instructions[x, y] = new Parser().Parse((char)v);
+                e.MutatedInstructions[x, y] = new Parser().Parse((char)v);
             }
         };
 

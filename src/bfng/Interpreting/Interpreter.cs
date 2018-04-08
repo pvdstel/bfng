@@ -1,5 +1,4 @@
-﻿using bfng.Lexing;
-using bfng.Parsing;
+﻿using bfng.Parsing;
 using bfng.Runtime;
 using System;
 
@@ -7,7 +6,7 @@ namespace bfng.Interpreting
 {
     public class Interpreter
     {
-        public void Execute(Program program)
+        public void Execute(InstructionProgram program)
         {
             ExecutionContext context = new ExecutionContext(program);
             ConsoleEnvironment environment = new ConsoleEnvironment();
