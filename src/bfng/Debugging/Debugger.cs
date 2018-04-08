@@ -1,4 +1,5 @@
 ﻿using bfng.Parsing;
+using bfng.Utils;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,9 +10,11 @@ namespace bfng.Debugging
 {
     public class Debugger : INotifyPropertyChanged
     {
+        public const int DEFAULT_MAX_HISTORY_SIZE = 250;
+
         #region Fields
 
-        private Stack<DebuggerState> _history;
+        private DropOutStack<DebuggerState> _history;
         private DebuggerEnvironment _debuggerEnvironment;
         private DebuggerState _debuggerState;
         #endregion
@@ -39,9 +42,9 @@ namespace bfng.Debugging
         public bool IsDebugging => (CurrentState?.ExecutionContext.IsRunning).GetValueOrDefault();
         #endregion
 
-        public void StartDebugging(InstructionProgram program)
+        public void StartDebugging(InstructionProgram program, int maxHistorySize = DEFAULT_MAX_HISTORY_SIZE)
         {
-            _history = new Stack<DebuggerState>();
+            _history = new DropOutStack<DebuggerState>(maxHistorySize);
             CurrentState = new DebuggerState(program);
         }
 
@@ -69,7 +72,19 @@ namespace bfng.Debugging
 
         public void RunToEnd()
         {
-            while (IsDebugging) Step();
+            _history.Push(CurrentState);
+
+            DebuggerState state = new DebuggerState(CurrentState);
+            _debuggerEnvironment.DebuggerState = state;
+
+            while (state.ExecutionContext.IsRunning)
+            {
+                Instruction currentInstruction = state.ExecutionContext.GetCurrentInstruction();
+                currentInstruction(state.ExecutionContext, _debuggerEnvironment);
+                state.ExecutionContext.AdvanceInstructionPointer();
+            }
+
+            CurrentState = state;
         }
 
         public void Rewind()
