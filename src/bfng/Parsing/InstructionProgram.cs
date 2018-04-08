@@ -1,4 +1,5 @@
 ﻿using bfng.Lexing;
+using bfng.Utils;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,26 +14,27 @@ namespace bfng.Parsing
             Width = expressionProgram.Width;
             Height = expressionProgram.Height;
 
-            Instructions = new Instruction[expressionProgram.Width, expressionProgram.Height];
-            ParseExpressions();
+            Instructions = new Readonly2DArray<Instruction>(ParseExpressions());
         }
 
-        public char[,] Expressions { get; }
-        public Instruction[,] Instructions { get; }
+        public Readonly2DArray<char> Expressions { get; }
+        public Readonly2DArray<Instruction> Instructions { get; }
         public int Width { get; }
         public int Height { get; }
 
-        private void ParseExpressions()
+        private Instruction[,] ParseExpressions()
         {
+            Instruction[,] instructions = new Instruction[Width, Height];
             Parser parser = new Parser();
             for (int x = 0; x < Width; ++x)
             {
                 for (int y = 0; y < Height; ++y)
                 {
                     char expression = Expressions[x, y];
-                    Instructions[x, y] = parser.Parse(expression);
+                    instructions[x, y] = parser.Parse(expression);
                 }
             }
+            return instructions;
         }
     }
 }
