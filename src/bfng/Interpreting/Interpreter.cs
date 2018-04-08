@@ -10,11 +10,12 @@ namespace bfng.Interpreting
         public void Execute(Program program)
         {
             ExecutionContext context = new ExecutionContext(program);
+            ConsoleEnvironment environment = new ConsoleEnvironment();
 
             while (context.IsRunning)
             {
                 Instruction currentInstruction = context.GetCurrentInstruction();
-                currentInstruction(context);
+                currentInstruction(context, environment);
                 context.AdvanceInstructionPointer();
             }
 
