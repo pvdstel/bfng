@@ -35,6 +35,8 @@
                 Grid.Column="2"
                 IsVisible="{Binding IsDebugging}"
                 Orientation="Horizontal">
+                <TextBlock Text="Stack count:" />
+                <TextBlock Text="{Binding StackValues.Count}" />
                 <TextBlock Text="IP:" />
                 <TextBlock Text="{Binding InstructionPointer.X}" />
                 <TextBlock Text="{Binding InstructionPointer.Y}" />

@@ -67,6 +67,11 @@ namespace bfng.Debugging
             CurrentState = state;
         }
 
+        public void RunToEnd()
+        {
+            while (IsDebugging) Step();
+        }
+
         public void Rewind()
         {
             if (!IsDebugging) return;
