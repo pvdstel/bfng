@@ -17,6 +17,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="DebugCommands.xaml" />
+    <None Remove="Views\Code.xaml" />
     <None Remove="Views\StatusBar.xaml" />
   </ItemGroup>
   <ItemGroup>
@@ -29,6 +30,9 @@
     <ProjectReference Include="..\bfng\bfng.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Update="Views\Code.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
     <EmbeddedResource Update="Views\DebugCommands.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>

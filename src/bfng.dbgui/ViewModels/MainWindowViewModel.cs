@@ -1,4 +1,5 @@
 ﻿using bfng.Debugging;
+using bfng.Parsing;
 using bfng.Runtime;
 using ReactiveUI;
 using System;
@@ -33,6 +34,23 @@ namespace bfng.dbgui.ViewModels
                 .ToProperty(this, x => x.OutputString, out _outputString);
             debugger.WhenAnyValue(d => d.CurrentState.ExecutionContext.Stack)
                 .ToProperty(this, x => x.StackValues, out _stackValues);
+            debugger.WhenAnyValue(d => d.CurrentState.ExecutionContext, ProgramToSourceStatements)
+                .ToProperty(this, x => x.SourceStatements, out _sourceStatements);
+            debugger.WhenAnyValue(d => d.CurrentState.ExecutionContext.Program)
+                .ToProperty(this, x => x.InstructionProgram, out _instructionProgram);
+        }
+
+        private List<SourceStatementViewModel> ProgramToSourceStatements(ExecutionContext executionContext)
+        {
+            List<SourceStatementViewModel> result = new List<SourceStatementViewModel>();
+            for (int j = 0; j < executionContext.Program.Height; ++j)
+            {
+                for (int i = 0; i < executionContext.Program.Width; ++i)
+                {
+                    result.Add(new SourceStatementViewModel(executionContext, i, j));
+                }
+            }
+            return result;
         }
 
         public ICommand StartDebuggingCommand { get; }
@@ -52,6 +70,12 @@ namespace bfng.dbgui.ViewModels
 
         private readonly ObservableAsPropertyHelper<Stack<int>> _stackValues;
         public Stack<int> StackValues => _stackValues.Value;
+
+        private readonly ObservableAsPropertyHelper<List<SourceStatementViewModel>> _sourceStatements;
+        public List<SourceStatementViewModel> SourceStatements => _sourceStatements.Value;
+
+        private readonly ObservableAsPropertyHelper<InstructionProgram> _instructionProgram;
+        public InstructionProgram InstructionProgram => _instructionProgram.Value;
 
         public string BefungeFilePath => Program.BefungeProgramPath;
     }

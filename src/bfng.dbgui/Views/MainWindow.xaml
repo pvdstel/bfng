@@ -24,6 +24,11 @@
             <ColumnDefinition Width="200" />
         </Grid.ColumnDefinitions>
         <v:DebugCommands Grid.ColumnSpan="2" />
+        <v:Code
+            Grid.Row="1"
+            Margin="10"
+            InstructionProgram="{Binding InstructionProgram}"
+            SourceStatements="{Binding SourceStatements}" />
         <ListBox
             Grid.Row="1"
             Grid.Column="1"
