@@ -6,13 +6,15 @@
             <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
             <Setter Property="BorderThickness" Value="{DynamicResource ThemeBorderThickness}" />
         </Style>
-        <Style Selector="Border.symbol">
-            <Setter Property="Width" Value="20" />
-            <Setter Property="Height" Value="20" />
-        </Style>
     </UserControl.Styles>
 
     <Design.Width>400</Design.Width>
     <Design.Height>400</Design.Height>
+
+    <Border Classes="box">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <Image x:Name="codeMap" Stretch="Uniform" />
+        </ScrollViewer>
+    </Border>
 
 </UserControl>
