@@ -20,6 +20,7 @@ namespace bfng.Utils
         public void Push(T item)
         {
             ++size;
+            if (size > items.Length) size = items.Length;
             items[top] = item;
             top = (top + 1) % items.Length;
         }
