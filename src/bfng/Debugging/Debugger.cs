@@ -40,11 +40,13 @@ namespace bfng.Debugging
                 NotifyPropertyChanged();
                 NotifyPropertyChanged(nameof(IsDebugging));
                 NotifyPropertyChanged(nameof(IsProgramRunning));
+                NotifyPropertyChanged(nameof(HistoryCount));
             }
         }
 
         public bool IsDebugging => CurrentState != null;
         public bool IsProgramRunning => (CurrentState?.ExecutionContext.IsRunning).GetValueOrDefault();
+        public int HistoryCount => (_history?.Count).GetValueOrDefault();
 
         public bool IsExecuting
         {
@@ -85,6 +87,35 @@ namespace bfng.Debugging
             state.ExecutionContext.AdvanceInstructionPointer();
 
             CurrentState = state;
+        }
+
+        public async void Continue()
+        {
+            if (IsExecuting) return;
+            IsExecuting = true;
+            _currentLongRunning = new CancellationTokenSource();
+
+            DebuggerState state = CurrentState;
+
+            await Task.Run(() =>
+            {
+                while (state.ExecutionContext.IsRunning)
+                {
+                    _history.Push(state);
+                    state = new DebuggerState(state);
+                    _debuggerEnvironment.DebuggerState = state;
+
+                    Instruction currentInstruction = state.ExecutionContext.GetCurrentInstruction();
+                    currentInstruction(state.ExecutionContext, _debuggerEnvironment);
+                    state.ExecutionContext.AdvanceInstructionPointer();
+
+                    if (_currentLongRunning.IsCancellationRequested) break;
+                }
+            });
+
+            CurrentState = state;
+
+            IsExecuting = false;
         }
 
         public async void Skip()

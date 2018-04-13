@@ -18,7 +18,7 @@
             <Setter Property="Margin" Value="5" />
         </Style>
     </UserControl.Styles>
-    <Design.Width>400</Design.Width>
+    <Design.Width>600</Design.Width>
     <Border>
         <Border.Background>
             <Binding Converter="{StaticResource backgroundConverter}" Path="IsDebugging">
@@ -43,6 +43,8 @@
                 Grid.Column="2"
                 IsVisible="{Binding IsDebugging}"
                 Orientation="Horizontal">
+                <TextBlock Text="History count:" />
+                <TextBlock Text="{Binding HistoryCount}" />
                 <TextBlock Text="Stack count:" />
                 <TextBlock Text="{Binding StackValues.Count}" />
                 <TextBlock Text="IP:" />

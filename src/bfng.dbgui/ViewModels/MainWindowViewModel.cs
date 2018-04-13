@@ -28,6 +28,7 @@ namespace bfng.dbgui.ViewModels
 
             StopDebuggingCommand = ReactiveCommand.Create(() => debugger.StopDebugging(), debugging);
             StepDebuggerCommand = ReactiveCommand.Create(() => debugger.Step(), canGoAhead);
+            ContinueDebuggerCommand = ReactiveCommand.Create(() => debugger.Continue(), canGoAhead);
             SkipDebuggerCommand = ReactiveCommand.Create(() => debugger.Skip(), canGoAhead);
             RewindDebuggerCommand = ReactiveCommand.Create(() => debugger.Rewind(), canRewind);
             BreakDebuggerCommand = ReactiveCommand.Create(() => debugger.Break(), canBreak);
@@ -46,6 +47,8 @@ namespace bfng.dbgui.ViewModels
                 .ToProperty(this, x => x.SourceStatements, out _sourceStatements);
             debugger.WhenAnyValue(d => d.CurrentState, c => c?.ExecutionContext.Program)
                 .ToProperty(this, x => x.InstructionProgram, out _instructionProgram);
+            debugger.WhenAnyValue(d => d.HistoryCount)
+              .ToProperty(this, x => x.HistoryCount, out _historyCount);
         }
 
         private List<Symbol> ProgramToSourceStatements(ExecutionContext executionContext)
@@ -65,6 +68,7 @@ namespace bfng.dbgui.ViewModels
         public ICommand StopDebuggingCommand { get; }
         public ICommand StepDebuggerCommand { get; }
         public ICommand RewindDebuggerCommand { get; }
+        public ICommand ContinueDebuggerCommand { get; }
         public ICommand SkipDebuggerCommand { get; }
         public ICommand BreakDebuggerCommand { get; }
 
@@ -88,6 +92,9 @@ namespace bfng.dbgui.ViewModels
 
         private readonly ObservableAsPropertyHelper<InstructionProgram> _instructionProgram;
         public InstructionProgram InstructionProgram => _instructionProgram.Value;
+
+        private readonly ObservableAsPropertyHelper<int> _historyCount;
+        public int HistoryCount => _historyCount.Value;
 
         public string BefungeFilePath => Program.BefungeProgramPath;
     }
