@@ -114,7 +114,6 @@ namespace bfng.Debugging
             });
 
             CurrentState = state;
-
             IsExecuting = false;
         }
 
@@ -124,13 +123,12 @@ namespace bfng.Debugging
             IsExecuting = true;
             _currentLongRunning = new CancellationTokenSource();
 
-            _history.Push(CurrentState);
-
             DebuggerState state = new DebuggerState(CurrentState);
-            _debuggerEnvironment.DebuggerState = state;
 
             await Task.Run(() =>
             {
+                _history.Push(CurrentState);
+                _debuggerEnvironment.DebuggerState = state;
                 while (state.ExecutionContext.IsRunning)
                 {
                     Instruction currentInstruction = state.ExecutionContext.GetCurrentInstruction();
@@ -142,7 +140,6 @@ namespace bfng.Debugging
             });
 
             CurrentState = state;
-
             IsExecuting = false;
         }
 
