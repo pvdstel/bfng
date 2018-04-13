@@ -15,6 +15,8 @@ using Avalonia.Media.Imaging;
 using System;
 using SixLabors.Fonts;
 using System.Threading.Tasks;
+using bfng.dbgui.Models;
+using SixLabors.ImageSharp.Processing.Drawing.Brushes;
 
 namespace bfng.dbgui.Views
 {
@@ -22,17 +24,24 @@ namespace bfng.dbgui.Views
     {
         #region Constants
 
-        public const int BlockSize = 20;
+        public const int BlockSize = 22;
         public const int CoordinateOffset = 20;
-        public readonly Rgba32 GridLineColor = new Rgba32(192, 192, 192);
-        private readonly Font CoordinateFont = SystemFonts.CreateFont("Arial", 12);
+
+        public static readonly Rgba32 SymbolColorOnLight = Rgba32.Black;
+        public static readonly Rgba32 SymbolColorOnDark = Rgba32.White;
+        public static readonly SolidBrush<Rgba32> ActiveColor = new SolidBrush<Rgba32>(Rgba32.Yellow);
+        public static readonly SolidBrush<Rgba32> BreakpointColor = new SolidBrush<Rgba32>(new Rgba32(150, 58, 70));
+        public static readonly Rgba32 GridLineColor = new Rgba32(192, 192, 192);
+
+        private static readonly Font SymbolFont = SystemFonts.CreateFont("Courier New", 14);
+        private static readonly Font CoordinateFont = SystemFonts.CreateFont("Arial", 12);
         #endregion
 
         #region Avalonia properties
 
-        public static readonly DirectProperty<Code, IEnumerable<SourceStatementViewModel>> SourceStatementsProperty =
-            AvaloniaProperty.RegisterDirect<Code, IEnumerable<SourceStatementViewModel>>(
-                nameof(SourceStatements), c => c.SourceStatements, (c, v) => c.SourceStatements = v);
+        public static readonly DirectProperty<Code, IEnumerable<Symbol>> SourceStatementsProperty =
+            AvaloniaProperty.RegisterDirect<Code, IEnumerable<Symbol>>(
+                nameof(Symbols), c => c.Symbols, (c, v) => c.Symbols = v);
 
         public static readonly DirectProperty<Code, InstructionProgram> InstructionProgamProperty =
             AvaloniaProperty.RegisterDirect<Code, InstructionProgram>(
@@ -41,7 +50,8 @@ namespace bfng.dbgui.Views
 
         #region Fields
 
-        private IEnumerable<SourceStatementViewModel> _sourceStatements = Enumerable.Empty<SourceStatementViewModel>();
+        private IEnumerable<Symbol> _symbols = Enumerable.Empty<Symbol>();
+        private List<Symbol> _internalSymbols = new List<Symbol>();
         private InstructionProgram _instructionProgram;
 
         private Image _codeMap;
@@ -65,12 +75,13 @@ namespace bfng.dbgui.Views
 
         #region Properties
 
-        public IEnumerable<SourceStatementViewModel> SourceStatements
+        public IEnumerable<Symbol> Symbols
         {
-            get => _sourceStatements;
+            get => _symbols;
             set
             {
-                _sourceStatements = value;
+                _symbols = value;
+                _internalSymbols = value?.ToList() ?? new List<Symbol>();
                 RenderCode();
             }
         }
@@ -111,6 +122,11 @@ namespace bfng.dbgui.Views
             {
                 using (SixLabors.ImageSharp.Image<Rgba32> code = new SixLabors.ImageSharp.Image<Rgba32>(w, h))
                 {
+                    foreach (Symbol symbol in _internalSymbols)
+                    {
+                        RenderSymbol(symbol, code);
+                    }
+
                     RenderGrid(code);
                     code.Save(ms, new SixLabors.ImageSharp.Formats.Png.PngEncoder());
                 }
@@ -118,6 +134,21 @@ namespace bfng.dbgui.Views
                 ms.Seek(0, SeekOrigin.Begin);
                 Bitmap b = new Bitmap(ms);
                 _codeMap.Source = b;
+            }
+        }
+
+        private void RenderSymbol(Symbol symbol, SixLabors.ImageSharp.Image<Rgba32> image)
+        {
+            Rgba32 symbolColor = SymbolColorOnLight;
+            int x = ProgramToBlock(symbol.X),
+                y = ProgramToBlock(symbol.Y);
+            if (symbol.Active)
+            {
+                image.Mutate(t => t.Fill(ActiveColor, new RectangleF(x, y, BlockSize, BlockSize)));
+            }
+            if (!char.IsWhiteSpace(symbol.Expression))
+            {
+                image.Mutate(t => t.DrawText(symbol.Expression.ToString(), SymbolFont, symbolColor, new PointF(x + 3, y)));
             }
         }
 
@@ -140,7 +171,7 @@ namespace bfng.dbgui.Views
             foreach (int x in gxs)
                 for (int y = CoordinateOffset; y < h; ++y) image[x, y] = GridLineColor;
 
-            foreach (int y in gys) 
+            foreach (int y in gys)
                 for (int x = CoordinateOffset; x < w; ++x) image[x, y] = GridLineColor;
         }
     }

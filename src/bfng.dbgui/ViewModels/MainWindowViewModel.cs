@@ -1,4 +1,5 @@
-﻿using bfng.Debugging;
+﻿using bfng.dbgui.Models;
+using bfng.Debugging;
 using bfng.Parsing;
 using bfng.Runtime;
 using ReactiveUI;
@@ -40,14 +41,14 @@ namespace bfng.dbgui.ViewModels
                 .ToProperty(this, x => x.InstructionProgram, out _instructionProgram);
         }
 
-        private List<SourceStatementViewModel> ProgramToSourceStatements(ExecutionContext executionContext)
+        private List<Symbol> ProgramToSourceStatements(ExecutionContext executionContext)
         {
-            List<SourceStatementViewModel> result = new List<SourceStatementViewModel>();
+            List<Symbol> result = new List<Symbol>();
             for (int j = 0; j < executionContext.Program.Height; ++j)
             {
                 for (int i = 0; i < executionContext.Program.Width; ++i)
                 {
-                    result.Add(new SourceStatementViewModel(executionContext, i, j));
+                    result.Add(new Symbol(executionContext, i, j));
                 }
             }
             return result;
@@ -71,8 +72,8 @@ namespace bfng.dbgui.ViewModels
         private readonly ObservableAsPropertyHelper<Stack<int>> _stackValues;
         public Stack<int> StackValues => _stackValues.Value;
 
-        private readonly ObservableAsPropertyHelper<List<SourceStatementViewModel>> _sourceStatements;
-        public List<SourceStatementViewModel> SourceStatements => _sourceStatements.Value;
+        private readonly ObservableAsPropertyHelper<List<Symbol>> _sourceStatements;
+        public List<Symbol> SourceStatements => _sourceStatements.Value;
 
         private readonly ObservableAsPropertyHelper<InstructionProgram> _instructionProgram;
         public InstructionProgram InstructionProgram => _instructionProgram.Value;
