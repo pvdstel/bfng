@@ -39,6 +39,7 @@
             Margin="10"
             AcceptsReturn="True"
             AcceptsTab="True"
+            FontFamily="Courier New"
             IsReadOnly="True"
             Text="{Binding OutputString}" />
         <v:StatusBar Grid.Row="3" Grid.ColumnSpan="2" />

@@ -39,10 +39,12 @@ namespace bfng.Debugging
                 _debuggerState = value;
                 NotifyPropertyChanged();
                 NotifyPropertyChanged(nameof(IsDebugging));
+                NotifyPropertyChanged(nameof(IsProgramRunning));
             }
         }
 
-        public bool IsDebugging => (CurrentState?.ExecutionContext.IsRunning).GetValueOrDefault();
+        public bool IsDebugging => CurrentState != null;
+        public bool IsProgramRunning => (CurrentState?.ExecutionContext.IsRunning).GetValueOrDefault();
 
         public bool IsExecuting
         {
