@@ -59,15 +59,18 @@ namespace bfng.Debugging
         }
         #endregion
 
+        #region Methods
+
         public void StartDebugging(InstructionProgram program, int maxHistorySize = DEFAULT_MAX_HISTORY_SIZE)
         {
             _history = new DropOutStack<DebuggerState>(maxHistorySize);
             CurrentState = new DebuggerState(program);
         }
 
-        public void StopDebugging()
+        public async void StopDebugging()
         {
             Break();
+            await Task.Yield();
             _history = null;
             CurrentState = null;
         }
@@ -160,6 +163,7 @@ namespace bfng.Debugging
 
             CurrentState = _history.Pop();
         }
+        #endregion
 
         #region INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
