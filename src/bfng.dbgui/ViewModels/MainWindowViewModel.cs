@@ -21,23 +21,29 @@ namespace bfng.dbgui.ViewModels
 
             StartDebuggingCommand = ReactiveCommand.Create(() => debugger.StartDebugging(Program.BefungeProgram));
 
-            IObservable<bool> canExecuteDebugActions = debugger.WhenAnyValue(d => d.IsDebugging);
-            StopDebuggingCommand = ReactiveCommand.Create(() => debugger.StopDebugging(), canExecuteDebugActions);
+            IObservable<bool> debugging = debugger.WhenAnyValue(d => d.IsDebugging);
+            IObservable<bool> canExecuteDebugActions = debugger.WhenAnyValue(d => d.IsDebugging, d => d.IsExecuting, (d, e) => d && !e);
+            IObservable<bool> canBreakDebugger = debugger.WhenAnyValue(d => d.IsDebugging, d => d.IsExecuting, (d, e) => d && e);
+
+            StopDebuggingCommand = ReactiveCommand.Create(() => debugger.StopDebugging(), debugging);
             StepDebuggerCommand = ReactiveCommand.Create(() => debugger.Step(), canExecuteDebugActions);
             RewindDebuggerCommand = ReactiveCommand.Create(() => debugger.Rewind(), canExecuteDebugActions);
-            RunDebuggerToEndCommand = ReactiveCommand.Create(() => debugger.RunToEnd(), canExecuteDebugActions);
+            SkipDebuggerCommand = ReactiveCommand.Create(() => debugger.Skip(), canExecuteDebugActions);
+            BreakDebuggerCommand = ReactiveCommand.Create(() => debugger.Break(), canBreakDebugger);
 
             debugger.WhenAnyValue(d => d.IsDebugging)
                 .ToProperty(this, x => x.IsDebugging, out _isDebugging);
-            debugger.WhenAnyValue(d => d.CurrentState.ExecutionContext.InstructionPointer)
+            debugger.WhenAnyValue(d => d.IsExecuting)
+                .ToProperty(this, x => x.IsExecuting, out _isExecuting);
+            debugger.WhenAnyValue(d => d.CurrentState, c => (c?.ExecutionContext.InstructionPointer).GetValueOrDefault())
                 .ToProperty(this, x => x.InstructionPointer, out _instructionPointer);
-            debugger.WhenAnyValue(d => d.CurrentState.Output, (StringBuilder v) => v.ToString())
+            debugger.WhenAnyValue(d => d.CurrentState, c => c?.Output.ToString())
                 .ToProperty(this, x => x.OutputString, out _outputString);
-            debugger.WhenAnyValue(d => d.CurrentState.ExecutionContext.Stack)
+            debugger.WhenAnyValue(d => d.CurrentState, c => c?.ExecutionContext.Stack)
                 .ToProperty(this, x => x.StackValues, out _stackValues);
-            debugger.WhenAnyValue(d => d.CurrentState.ExecutionContext, ProgramToSourceStatements)
+            debugger.WhenAnyValue(d => d.CurrentState, c => c != null ? ProgramToSourceStatements(c.ExecutionContext) : null)
                 .ToProperty(this, x => x.SourceStatements, out _sourceStatements);
-            debugger.WhenAnyValue(d => d.CurrentState.ExecutionContext.Program)
+            debugger.WhenAnyValue(d => d.CurrentState, c => c?.ExecutionContext.Program)
                 .ToProperty(this, x => x.InstructionProgram, out _instructionProgram);
         }
 
@@ -58,10 +64,14 @@ namespace bfng.dbgui.ViewModels
         public ICommand StopDebuggingCommand { get; }
         public ICommand StepDebuggerCommand { get; }
         public ICommand RewindDebuggerCommand { get; }
-        public ICommand RunDebuggerToEndCommand { get; }
+        public ICommand SkipDebuggerCommand { get; }
+        public ICommand BreakDebuggerCommand { get; }
 
         private readonly ObservableAsPropertyHelper<bool> _isDebugging;
         public bool IsDebugging => _isDebugging.Value;
+
+        private readonly ObservableAsPropertyHelper<bool> _isExecuting;
+        public bool IsExecuting => _isExecuting.Value;
 
         private readonly ObservableAsPropertyHelper<InstructionPointer> _instructionPointer;
         public InstructionPointer InstructionPointer => _instructionPointer.Value;

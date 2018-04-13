@@ -8,15 +8,37 @@
         </StackPanel.Styles>
         <Button
             Command="{Binding StartDebuggingCommand}"
-            Content="Start debugging"
-            IsVisible="{Binding !IsDebugging}" />
+            Content="Start debugger"
+            IsVisible="{Binding !IsDebugging}"
+            ToolTip.Tip="Starts the debugger." />
         <Button
             Command="{Binding StartDebuggingCommand}"
-            Content="Restart"
-            IsVisible="{Binding IsDebugging}" />
-        <Button Command="{Binding StopDebuggingCommand}" Content="Stop debugging" />
-        <Button Command="{Binding StepDebuggerCommand}" Content="Step" />
-        <Button Command="{Binding RewindDebuggerCommand}" Content="Rewind" />
-        <Button Command="{Binding RunDebuggerToEndCommand}" Content="Run to end" />
+            Content="Restart debugger"
+            IsVisible="{Binding IsDebugging}"
+            ToolTip.Tip="Restarts the debugger, discarding the current session." />
+        <Button
+            Command="{Binding StopDebuggingCommand}"
+            Content="Stop debugger"
+            ToolTip.Tip="Stops the debugger, discarding the current session." />
+        <Separator
+            Width="1"
+            Margin="10,12,0,12"
+            Background="LightGray" />
+        <Button
+            Command="{Binding StepDebuggerCommand}"
+            Content="Step"
+            ToolTip.Tip="Executes a single instruction." />
+        <Button
+            Command="{Binding RewindDebuggerCommand}"
+            Content="Rewind"
+            ToolTip.Tip="Rewinds execution state to the last stored state." />
+        <Button
+            Command="{Binding SkipDebuggerCommand}"
+            Content="Skip"
+            ToolTip.Tip="Executes until the next breakpoint or program end, without storing intermediate states." />
+        <Button
+            Command="{Binding BreakDebuggerCommand}"
+            Content="Break"
+            ToolTip.Tip="Breaks a long-running execution cycle." />
     </StackPanel>
 </UserControl>

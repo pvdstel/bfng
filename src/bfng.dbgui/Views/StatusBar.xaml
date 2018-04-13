@@ -19,7 +19,14 @@
         </Style>
     </UserControl.Styles>
     <Design.Width>400</Design.Width>
-    <Border Background="{Binding IsDebugging, Converter={StaticResource backgroundConverter}}">
+    <Border>
+        <Border.Background>
+            <Binding Converter="{StaticResource backgroundConverter}" Path="IsDebugging">
+                <Binding.FallbackValue>
+                    <SolidColorBrush Color="Gray" />
+                </Binding.FallbackValue>
+            </Binding>
+        </Border.Background>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
@@ -29,6 +36,7 @@
             <StackPanel Orientation="Horizontal">
                 <TextBlock IsVisible="{Binding !IsDebugging}" Text="Idle" />
                 <TextBlock IsVisible="{Binding IsDebugging}" Text="Debugging" />
+                <TextBlock IsVisible="{Binding IsExecuting}" Text="Executing..." />
                 <TextBlock Text="{Binding BefungeFilePath, FallbackValue=File path}" />
             </StackPanel>
             <StackPanel

@@ -1,10 +1,9 @@
 ﻿using bfng.Parsing;
 using bfng.Utils;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace bfng.Debugging
 {
@@ -17,6 +16,9 @@ namespace bfng.Debugging
         private DropOutStack<DebuggerState> _history;
         private DebuggerEnvironment _debuggerEnvironment;
         private DebuggerState _debuggerState;
+        private bool _isExecuting;
+
+        private CancellationTokenSource _currentLongRunning;
         #endregion
 
         #region Constructor
@@ -29,7 +31,8 @@ namespace bfng.Debugging
 
         #region Properties
 
-        public DebuggerState CurrentState {
+        public DebuggerState CurrentState
+        {
             get => _debuggerState;
             private set
             {
@@ -40,6 +43,16 @@ namespace bfng.Debugging
         }
 
         public bool IsDebugging => (CurrentState?.ExecutionContext.IsRunning).GetValueOrDefault();
+
+        public bool IsExecuting
+        {
+            get { return _isExecuting; }
+            private set
+            {
+                _isExecuting = value;
+                NotifyPropertyChanged();
+            }
+        }
         #endregion
 
         public void StartDebugging(InstructionProgram program, int maxHistorySize = DEFAULT_MAX_HISTORY_SIZE)
@@ -50,6 +63,7 @@ namespace bfng.Debugging
 
         public void StopDebugging()
         {
+            Break();
             _history = null;
             CurrentState = null;
         }
@@ -57,6 +71,7 @@ namespace bfng.Debugging
         public void Step()
         {
             if (!IsDebugging) return;
+            if (IsExecuting) return;
 
             _history.Push(CurrentState);
 
@@ -70,26 +85,47 @@ namespace bfng.Debugging
             CurrentState = state;
         }
 
-        public void RunToEnd()
+        public async void Skip()
         {
+            if (IsExecuting) return;
+            IsExecuting = true;
+            _currentLongRunning = new CancellationTokenSource();
+
             _history.Push(CurrentState);
 
             DebuggerState state = new DebuggerState(CurrentState);
             _debuggerEnvironment.DebuggerState = state;
 
-            while (state.ExecutionContext.IsRunning)
+            await Task.Run(() =>
             {
-                Instruction currentInstruction = state.ExecutionContext.GetCurrentInstruction();
-                currentInstruction(state.ExecutionContext, _debuggerEnvironment);
-                state.ExecutionContext.AdvanceInstructionPointer();
-            }
+                while (state.ExecutionContext.IsRunning)
+                {
+                    Instruction currentInstruction = state.ExecutionContext.GetCurrentInstruction();
+                    currentInstruction(state.ExecutionContext, _debuggerEnvironment);
+                    state.ExecutionContext.AdvanceInstructionPointer();
+
+                    if (_currentLongRunning.IsCancellationRequested) break;
+                }
+            });
 
             CurrentState = state;
+
+            IsExecuting = false;
+        }
+
+        public void Break()
+        {
+            if (!IsDebugging) return;
+            if (!IsExecuting) return;
+            if (_currentLongRunning == null) return;
+
+            _currentLongRunning.Cancel();
         }
 
         public void Rewind()
         {
             if (!IsDebugging) return;
+            if (IsExecuting) return;
             if (_history.Count == 0) return;
 
             CurrentState = _history.Pop();

@@ -159,6 +159,8 @@ namespace bfng.dbgui.Views
 
         private void RenderGrid(SixLabors.ImageSharp.Image<Rgba32> image)
         {
+            if (InstructionProgram == null) return;
+
             int w = _codeMapSize.Item1,
                 h = _codeMapSize.Item2;
 
