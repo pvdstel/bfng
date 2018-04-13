@@ -31,6 +31,7 @@ namespace bfng.dbgui.Views
         public static readonly Rgba32 SymbolColorOnDark = Rgba32.White;
         public static readonly SolidBrush<Rgba32> ActiveColor = new SolidBrush<Rgba32>(Rgba32.Yellow);
         public static readonly SolidBrush<Rgba32> BreakpointColor = new SolidBrush<Rgba32>(new Rgba32(150, 58, 70));
+        public static readonly SolidBrush<Rgba32> MutatedColor = new SolidBrush<Rgba32>(Rgba32.Purple);
         public static readonly Rgba32 GridLineColor = new Rgba32(192, 192, 192);
 
         private static readonly Font SymbolFont = SystemFonts.CreateFont("Courier New", 14);
@@ -145,6 +146,10 @@ namespace bfng.dbgui.Views
             if (symbol.Active)
             {
                 image.Mutate(t => t.Fill(ActiveColor, new RectangleF(x, y, BlockSize, BlockSize)));
+            }
+            if (symbol.Mutated)
+            {
+                image.Mutate(t => t.Fill(MutatedColor, new RectangleF(x, y + BlockSize - 3, BlockSize, 3)));
             }
             if (!char.IsWhiteSpace(symbol.Expression))
             {
