@@ -75,6 +75,14 @@ namespace bfng.Debugging
             CurrentState = null;
         }
 
+        private void DoNext(DebuggerState state)
+        {
+            Instruction currentInstruction = state.ExecutionContext.GetCurrentInstruction();
+            currentInstruction(state.ExecutionContext, _debuggerEnvironment);
+            state.ExecutionContext.AdvanceInstructionPointer();
+            state.Round++;
+        }
+
         public void Step()
         {
             if (!IsDebugging) return;
@@ -85,9 +93,7 @@ namespace bfng.Debugging
             DebuggerState state = new DebuggerState(CurrentState);
             _debuggerEnvironment.DebuggerState = state;
 
-            Instruction currentInstruction = state.ExecutionContext.GetCurrentInstruction();
-            currentInstruction(state.ExecutionContext, _debuggerEnvironment);
-            state.ExecutionContext.AdvanceInstructionPointer();
+            DoNext(state);
 
             CurrentState = state;
         }
@@ -108,9 +114,7 @@ namespace bfng.Debugging
                     state = new DebuggerState(state);
                     _debuggerEnvironment.DebuggerState = state;
 
-                    Instruction currentInstruction = state.ExecutionContext.GetCurrentInstruction();
-                    currentInstruction(state.ExecutionContext, _debuggerEnvironment);
-                    state.ExecutionContext.AdvanceInstructionPointer();
+                    DoNext(state);
 
                     if (_currentLongRunning.IsCancellationRequested) break;
                 }
@@ -134,9 +138,7 @@ namespace bfng.Debugging
                 _debuggerEnvironment.DebuggerState = state;
                 while (state.ExecutionContext.IsRunning)
                 {
-                    Instruction currentInstruction = state.ExecutionContext.GetCurrentInstruction();
-                    currentInstruction(state.ExecutionContext, _debuggerEnvironment);
-                    state.ExecutionContext.AdvanceInstructionPointer();
+                    DoNext(state);
 
                     if (_currentLongRunning.IsCancellationRequested) break;
                 }

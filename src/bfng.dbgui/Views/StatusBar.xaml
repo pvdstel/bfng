@@ -47,6 +47,8 @@
                 <TextBlock Text="{Binding HistoryCount}" />
                 <TextBlock Text="Stack count:" />
                 <TextBlock Text="{Binding StackValues.Count}" />
+                <TextBlock Text="Round:" />
+                <TextBlock Text="{Binding Round}" />
                 <TextBlock Text="IP:" />
                 <TextBlock Text="{Binding InstructionPointer.X}" />
                 <TextBlock Text="{Binding InstructionPointer.Y}" />

@@ -48,7 +48,9 @@ namespace bfng.dbgui.ViewModels
             debugger.WhenAnyValue(d => d.CurrentState, c => c?.ExecutionContext.Program)
                 .ToProperty(this, x => x.InstructionProgram, out _instructionProgram);
             debugger.WhenAnyValue(d => d.HistoryCount)
-              .ToProperty(this, x => x.HistoryCount, out _historyCount);
+                .ToProperty(this, x => x.HistoryCount, out _historyCount);
+            debugger.WhenAnyValue(d => d.CurrentState, c => (c?.Round).GetValueOrDefault())
+                .ToProperty(this, x => x.Round, out _round);
         }
 
         private List<Symbol> ProgramToSourceStatements(ExecutionContext executionContext)
@@ -95,6 +97,9 @@ namespace bfng.dbgui.ViewModels
 
         private readonly ObservableAsPropertyHelper<int> _historyCount;
         public int HistoryCount => _historyCount.Value;
+
+        private readonly ObservableAsPropertyHelper<ulong> _round;
+        public ulong Round => _round.Value;
 
         public string BefungeFilePath => Program.BefungeProgramPath;
     }
