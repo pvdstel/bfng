@@ -1,5 +1,5 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Design.Width>600</Design.Width>
+    <Design.Width>800</Design.Width>
     <StackPanel Orientation="Horizontal">
         <StackPanel.Styles>
             <Style Selector="Button">
@@ -44,5 +44,9 @@
             Command="{Binding BreakDebuggerCommand}"
             Content="Break"
             ToolTip.Tip="Breaks a long-running execution cycle." />
+        <Button
+            Command="{Binding AutoStepDebuggerCommand}"
+            Content="Auto"
+            ToolTip.Tip="Automatically steps the debugger repeatedly. Use Break to stop." />
     </StackPanel>
 </UserControl>

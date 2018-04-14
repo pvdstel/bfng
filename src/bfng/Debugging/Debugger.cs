@@ -10,6 +10,7 @@ namespace bfng.Debugging
     public class Debugger : INotifyPropertyChanged
     {
         public const int DEFAULT_MAX_HISTORY_SIZE = 250;
+        public const int AUTO_STEP_DELAY = 250;
 
         #region Fields
 
@@ -83,11 +84,8 @@ namespace bfng.Debugging
             state.Round++;
         }
 
-        public void Step()
+        private void StepInternal()
         {
-            if (!IsDebugging) return;
-            if (IsExecuting) return;
-
             _history.Push(CurrentState);
 
             DebuggerState state = new DebuggerState(CurrentState);
@@ -96,6 +94,14 @@ namespace bfng.Debugging
             DoNext(state);
 
             CurrentState = state;
+        }
+
+        public void Step()
+        {
+            if (!IsDebugging) return;
+            if (IsExecuting) return;
+
+            StepInternal();
         }
 
         public async void Continue()
@@ -145,6 +151,23 @@ namespace bfng.Debugging
             });
 
             CurrentState = state;
+            IsExecuting = false;
+        }
+
+        public async void AutoStep(int delay = AUTO_STEP_DELAY)
+        {
+            if (IsExecuting) return;
+            IsExecuting = true;
+            _currentLongRunning = new CancellationTokenSource();
+
+            await Task.Yield();
+                
+            while (!_currentLongRunning.IsCancellationRequested)
+            {
+                StepInternal();
+                await Task.Delay(delay);
+            }
+
             IsExecuting = false;
         }
 

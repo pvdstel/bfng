@@ -23,7 +23,7 @@ namespace bfng.dbgui.ViewModels
 
             IObservable<bool> debugging = debugger.WhenAnyValue(d => d.IsDebugging);
             IObservable<bool> canGoAhead = debugger.WhenAnyValue(d => d.IsProgramRunning, d => d.IsExecuting, (d, e) => d && !e);
-            IObservable<bool> canRewind = debugger.WhenAnyValue(d => d.IsDebugging, d => d.IsExecuting, (d, e) => d && !e);
+            IObservable<bool> canRewind = debugger.WhenAnyValue(d => d.IsDebugging, d => d.IsExecuting, d => d.HistoryCount, (d, e, h) => d && !e && h > 0);
             IObservable<bool> canBreak = debugger.WhenAnyValue(d => d.IsProgramRunning, d => d.IsExecuting, (d, e) => d && e);
 
             StopDebuggingCommand = ReactiveCommand.Create(() => debugger.StopDebugging(), debugging);
@@ -32,6 +32,7 @@ namespace bfng.dbgui.ViewModels
             SkipDebuggerCommand = ReactiveCommand.Create(() => debugger.Skip(), canGoAhead);
             RewindDebuggerCommand = ReactiveCommand.Create(() => debugger.Rewind(), canRewind);
             BreakDebuggerCommand = ReactiveCommand.Create(() => debugger.Break(), canBreak);
+            AutoStepDebuggerCommand = ReactiveCommand.Create(() => debugger.AutoStep(), canGoAhead);
 
             debugger.WhenAnyValue(d => d.IsDebugging)
                 .ToProperty(this, x => x.IsDebugging, out _isDebugging);
@@ -73,6 +74,7 @@ namespace bfng.dbgui.ViewModels
         public ICommand ContinueDebuggerCommand { get; }
         public ICommand SkipDebuggerCommand { get; }
         public ICommand BreakDebuggerCommand { get; }
+        public ICommand AutoStepDebuggerCommand { get; }
 
         private readonly ObservableAsPropertyHelper<bool> _isDebugging;
         public bool IsDebugging => _isDebugging.Value;
