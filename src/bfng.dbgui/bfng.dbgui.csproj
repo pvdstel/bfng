@@ -19,7 +19,6 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Assets\*" />
-    <Folder Include="Utils\" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="DebugCommands.xaml" />
