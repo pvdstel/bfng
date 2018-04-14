@@ -43,7 +43,7 @@
         <Button
             Command="{Binding BreakDebuggerCommand}"
             Content="Break"
-            ToolTip.Tip="Breaks a long-running execution cycle." />
+            ToolTip.Tip="Breaks execution." />
         <Button
             Command="{Binding AutoStepDebuggerCommand}"
             Content="Auto"
