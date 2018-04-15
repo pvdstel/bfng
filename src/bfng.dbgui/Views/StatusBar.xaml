@@ -24,7 +24,7 @@
                 <SolidColorBrush Color="Transparent" />
             </converters:ToggleBrushConverter.FalseBrush>
             <converters:ToggleBrushConverter.TrueBrush>
-                <SolidColorBrush Color="#314d34" />
+                <SolidColorBrush Color="#003d66" />
             </converters:ToggleBrushConverter.TrueBrush>
         </converters:ToggleBrushConverter>
     </UserControl.Resources>
