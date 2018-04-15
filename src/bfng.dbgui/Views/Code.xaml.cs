@@ -1,22 +1,24 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Markup.Xaml;
-using bfng.dbgui.ViewModels;
+using Avalonia.Media.Imaging;
+using bfng.dbgui.Models;
 using bfng.Parsing;
+using bfng.Runtime;
+using ReactiveUI;
+using SixLabors.Fonts;
 using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing.Drawing;
-using SixLabors.ImageSharp.Processing.Text;
 using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Processing.Drawing;
+using SixLabors.ImageSharp.Processing.Drawing.Brushes;
+using SixLabors.ImageSharp.Processing.Text;
 using SixLabors.Primitives;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Avalonia.Media.Imaging;
-using System;
-using SixLabors.Fonts;
 using System.Threading.Tasks;
-using bfng.dbgui.Models;
-using SixLabors.ImageSharp.Processing.Drawing.Brushes;
 
 namespace bfng.dbgui.Views
 {
@@ -51,6 +53,10 @@ namespace bfng.dbgui.Views
         public static readonly DirectProperty<Code, InstructionProgram> InstructionProgamProperty =
             AvaloniaProperty.RegisterDirect<Code, InstructionProgram>(
                 nameof(InstructionProgram), c => c.InstructionProgram, (c, v) => c.InstructionProgram = v);
+
+        public static readonly DirectProperty<Code, ReactiveCommand<InstructionPointer, bool>> ToggleBreakpointCommandProperty =
+            AvaloniaProperty.RegisterDirect<Code, ReactiveCommand<InstructionPointer, bool>>(
+                nameof(ToggleBreakpointCommand), c => c.ToggleBreakpointCommand, (c, v) => c.ToggleBreakpointCommand = v);
         #endregion
 
         #region Fields
@@ -75,6 +81,22 @@ namespace bfng.dbgui.Views
         {
             AvaloniaXamlLoader.Load(this);
             _codeMap = this.FindControl<Image>("codeMap");
+
+            Tuple<Avalonia.Point, MouseButton> pd = null;
+            _codeMap.PointerPressed += (sender, e) => pd = new Tuple<Avalonia.Point, MouseButton>(e.GetPosition(_codeMap), e.MouseButton);
+            _codeMap.PointerReleased += (sender, e) =>
+            {
+                var pos = e.GetPosition(_codeMap);
+                if (pd != null && Math.Abs(pd.Item1.X - pos.X) < 3 && Math.Abs(pd.Item1.Y-  pos.Y) < 3 && pd.Item2 == e.MouseButton)
+                {
+                    if (pd.Item2 == MouseButton.Left && ToggleBreakpointCommand != null)
+                    {
+                        var ip = new InstructionPointer(BlockToProgram((int)pd.Item1.X), BlockToProgram((int)pd.Item1.Y));
+                        ToggleBreakpointCommand.Execute(ip).Subscribe();
+                    }
+                }
+                pd = null;
+            };
         }
         #endregion
 
@@ -100,9 +122,16 @@ namespace bfng.dbgui.Views
                 UpdateCodeMap();
             }
         }
+
+        public ReactiveCommand<InstructionPointer, bool> ToggleBreakpointCommand
+        {
+            get;
+            set;
+        }
         #endregion
 
         private int ProgramToBlock(int n) => n * BlockSize + CoordinateOffset;
+        private int BlockToProgram(int n) => (n - CoordinateOffset) / BlockSize;
 
         public void UpdateCodeMap()
         {
@@ -158,13 +187,17 @@ namespace bfng.dbgui.Views
             Rgba32 symbolColor = SymbolColorOnLight;
             int x = ProgramToBlock(symbol.X),
                 y = ProgramToBlock(symbol.Y);
-            if (symbol.Active)
+            if (symbol.IsActive)
             {
-                image.Mutate(t => t.Fill(ActiveColor, new RectangleF(x, y, BlockSize, BlockSize)));
+                image.Mutate(t => t.Fill(ActiveColor, new Rectangle(x, y, BlockSize, BlockSize)));
+            } else if (symbol.HasBreakpoint)
+            {
+                image.Mutate(t => t.Fill(BreakpointColor, new Rectangle(x, y, BlockSize, BlockSize)));
+                symbolColor = SymbolColorOnDark;
             }
-            if (symbol.Mutated)
+            if (symbol.IsMutated)
             {
-                image.Mutate(t => t.Fill(MutatedColor, new RectangleF(x, y + BlockSize - 3, BlockSize, 3)));
+                image.Mutate(t => t.Fill(MutatedColor, new Rectangle(x, y + BlockSize - 3, BlockSize, 3)));
             }
             if (!char.IsWhiteSpace(symbol.Expression))
             {
@@ -185,10 +218,10 @@ namespace bfng.dbgui.Views
             var gys = cys.Skip(1).Take(InstructionProgram.Height - 1);
 
             for (int i = 0; i < cxs.Count; ++i)
-                image.Mutate(t => t.DrawText(i.ToString(), CoordinateFont, GridLineColor, new PointF(cxs[i], 1)));
+                image.Mutate(t => t.DrawText(i.ToString(), CoordinateFont, GridLineColor, new SixLabors.Primitives.Point(cxs[i], 1)));
 
             for (int i = 0; i < cys.Count; ++i)
-                image.Mutate(t => t.DrawText(i.ToString(), CoordinateFont, GridLineColor, new PointF(4, cys[i])));
+                image.Mutate(t => t.DrawText(i.ToString(), CoordinateFont, GridLineColor, new SixLabors.Primitives.Point(4, cys[i])));
 
             foreach (int x in gxs)
                 for (int y = CoordinateOffset; y < h; ++y) image[x, y] = GridLineColor;

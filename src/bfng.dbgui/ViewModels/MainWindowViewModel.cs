@@ -5,16 +5,12 @@ using bfng.Runtime;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Input;
 
 namespace bfng.dbgui.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
         readonly Debugger debugger = new Debugger();
-        readonly Lazy<List<Symbol>> programSymbols = new Lazy<List<Symbol>>(() => ProgramToSymbols(Program.BefungeProgram));
 
         public MainWindowViewModel()
         {
@@ -32,6 +28,7 @@ namespace bfng.dbgui.ViewModels
             RewindDebuggerCommand = ReactiveCommand.Create(() => debugger.Rewind(), canRewind);
             BreakDebuggerCommand = ReactiveCommand.Create(() => debugger.Break(), canBreak);
             AutoStepDebuggerCommand = ReactiveCommand.Create(() => debugger.AutoStep(), canGoAhead);
+            ToggleBreakpointCommand = ReactiveCommand.Create<InstructionPointer, bool>(ip => debugger.ToggleBreakpoint(ip));
 
             debugger.WhenAnyValue(d => d.IsDebugging)
                 .ToProperty(this, x => x.IsDebugging, out _isDebugging);
@@ -43,7 +40,7 @@ namespace bfng.dbgui.ViewModels
                 .ToProperty(this, x => x.OutputString, out _outputString);
             debugger.WhenAnyValue(d => d.CurrentState, c => c?.ExecutionContext.Stack)
                 .ToProperty(this, x => x.StackValues, out _stackValues);
-            debugger.WhenAnyValue(d => d.CurrentState, c => c != null ? ExecutionContextToSymbols(c.ExecutionContext) : programSymbols.Value)
+            debugger.WhenAnyValue(d => d.CurrentState, d => d.Breakpoints, (c, b) => c != null ? ExecutionContextToSymbols(c.ExecutionContext) : ProgramToSymbols(Program.BefungeProgram))
                 .ToProperty(this, x => x.Symbols, out _symbols);
             debugger.WhenAnyValue(d => d.CurrentState, c => c?.ExecutionContext.Program ?? Program.BefungeProgram)
                 .ToProperty(this, x => x.InstructionProgram, out _instructionProgram);
@@ -53,40 +50,41 @@ namespace bfng.dbgui.ViewModels
                 .ToProperty(this, x => x.Round, out _round);
         }
 
-        private static List<Symbol> ProgramToSymbols(InstructionProgram program)
+        private List<Symbol> ProgramToSymbols(InstructionProgram program)
         {
             List<Symbol> result = new List<Symbol>();
             for (int j = 0; j < program.Height; ++j)
             {
                 for (int i = 0; i < program.Width; ++i)
                 {
-                    result.Add(new Symbol(program, i, j));
+                    result.Add(new Symbol(program, i, j, debugger.Breakpoints.Contains(new InstructionPointer(i, j))));
                 }
             }
             return result;
         }
 
-        private static List<Symbol> ExecutionContextToSymbols(ExecutionContext executionContext)
+        private List<Symbol> ExecutionContextToSymbols(ExecutionContext executionContext)
         {
             List<Symbol> result = new List<Symbol>();
             for (int j = 0; j < executionContext.Program.Height; ++j)
             {
                 for (int i = 0; i < executionContext.Program.Width; ++i)
                 {
-                    result.Add(new Symbol(executionContext, i, j));
+                    result.Add(new Symbol(executionContext, i, j, debugger.Breakpoints.Contains(new InstructionPointer(i, j))));
                 }
             }
             return result;
         }
 
-        public ICommand StartDebuggingCommand { get; }
-        public ICommand StopDebuggingCommand { get; }
-        public ICommand StepDebuggerCommand { get; }
-        public ICommand RewindDebuggerCommand { get; }
-        public ICommand ContinueDebuggerCommand { get; }
-        public ICommand SkipDebuggerCommand { get; }
-        public ICommand BreakDebuggerCommand { get; }
-        public ICommand AutoStepDebuggerCommand { get; }
+        public ReactiveCommand StartDebuggingCommand { get; }
+        public ReactiveCommand StopDebuggingCommand { get; }
+        public ReactiveCommand StepDebuggerCommand { get; }
+        public ReactiveCommand RewindDebuggerCommand { get; }
+        public ReactiveCommand ContinueDebuggerCommand { get; }
+        public ReactiveCommand SkipDebuggerCommand { get; }
+        public ReactiveCommand BreakDebuggerCommand { get; }
+        public ReactiveCommand AutoStepDebuggerCommand { get; }
+        public ReactiveCommand ToggleBreakpointCommand { get; }
 
         private readonly ObservableAsPropertyHelper<bool> _isDebugging;
         public bool IsDebugging => _isDebugging.Value;

@@ -1,5 +1,7 @@
 ﻿using bfng.Parsing;
+using bfng.Runtime;
 using bfng.Utils;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -18,6 +20,7 @@ namespace bfng.Debugging
         private DebuggerEnvironment _debuggerEnvironment;
         private DebuggerState _debuggerState;
         private bool _isExecuting;
+        private HashSet<InstructionPointer> _breakpoints = new HashSet<InstructionPointer>();
 
         private CancellationTokenSource _currentLongRunning;
         #endregion
@@ -57,6 +60,11 @@ namespace bfng.Debugging
                 _isExecuting = value;
                 NotifyPropertyChanged();
             }
+        }
+
+        public ISet<InstructionPointer> Breakpoints
+        {
+            get => new HashSet<InstructionPointer>(_breakpoints);
         }
         #endregion
 
@@ -122,6 +130,7 @@ namespace bfng.Debugging
 
                     DoNext(state);
 
+                    if (_breakpoints.Contains(state.ExecutionContext.InstructionPointer)) break;
                     if (_currentLongRunning.IsCancellationRequested) break;
                 }
             });
@@ -146,6 +155,7 @@ namespace bfng.Debugging
                 {
                     DoNext(state);
 
+                    if (_breakpoints.Contains(state.ExecutionContext.InstructionPointer)) break;
                     if (_currentLongRunning.IsCancellationRequested) break;
                 }
             });
@@ -161,10 +171,11 @@ namespace bfng.Debugging
             _currentLongRunning = new CancellationTokenSource();
 
             await Task.Yield();
-                
+
             while (!_currentLongRunning.IsCancellationRequested)
             {
                 StepInternal();
+                if (_breakpoints.Contains(_debuggerState.ExecutionContext.InstructionPointer)) break;
                 await Task.Delay(delay);
             }
 
@@ -187,6 +198,22 @@ namespace bfng.Debugging
             if (_history.Count == 0) return;
 
             CurrentState = _history.Pop();
+        }
+
+        public bool ToggleBreakpoint(InstructionPointer position)
+        {
+            if (_breakpoints.Contains(position))
+            {
+                _breakpoints.Remove(position);
+                NotifyPropertyChanged(nameof(Breakpoints));
+                return false;
+            }
+            else
+            {
+                _breakpoints.Add(position);
+                NotifyPropertyChanged(nameof(Breakpoints));
+                return true;
+            }
         }
         #endregion
 

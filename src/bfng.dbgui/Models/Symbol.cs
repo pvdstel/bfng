@@ -5,26 +5,28 @@ namespace bfng.dbgui.Models
 {
     public class Symbol
     {
-        public Symbol(ExecutionContext executionContext, int x, int y)
+        public Symbol(ExecutionContext executionContext, int x, int y, bool hasBreakpoint = false)
         {
             X = x;
             Y = y;
             Expression = executionContext.GetExpression(x, y);
             Instruction = executionContext.GetInstruction(x, y);
-            Active = executionContext.IsRunning &&
+            IsActive = executionContext.IsRunning &&
                 executionContext.InstructionPointer.X == x &&
                 executionContext.InstructionPointer.Y == y;
-            Mutated = executionContext.MutatedInstructions[x, y] != null;
+            IsMutated = executionContext.MutatedInstructions[x, y] != null;
+            HasBreakpoint = hasBreakpoint;
         }
 
-        public Symbol(InstructionProgram program, int x, int y)
+        public Symbol(InstructionProgram program, int x, int y, bool hasBreakpoint = false)
         {
             X = x;
             Y = y;
             Expression = program.Expressions[x, y];
             Instruction = program.Instructions[x, y];
-            Active = false;
-            Mutated = false;
+            IsActive = false;
+            IsMutated = false;
+            HasBreakpoint = hasBreakpoint;
         }
 
         public int X
@@ -47,12 +49,17 @@ namespace bfng.dbgui.Models
             get;
             set;
         }
-        public bool Active
+        public bool IsActive
         {
             get;
             set;
         }
-        public bool Mutated
+        public bool IsMutated
+        {
+            get;
+            set;
+        }
+        public bool HasBreakpoint
         {
             get;
             set;
