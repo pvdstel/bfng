@@ -70,8 +70,10 @@ namespace bfng.Debugging
 
         #region Methods
 
-        public void StartDebugging(InstructionProgram program, int maxHistorySize = DEFAULT_MAX_HISTORY_SIZE)
+        public async void StartDebugging(InstructionProgram program, int maxHistorySize = DEFAULT_MAX_HISTORY_SIZE)
         {
+            Break();
+            await Task.Yield();
             _history = new DropOutStack<DebuggerState>(maxHistorySize);
             CurrentState = new DebuggerState(program);
         }
@@ -172,11 +174,11 @@ namespace bfng.Debugging
 
             await Task.Yield();
 
-            while (!_currentLongRunning.IsCancellationRequested)
+            while (IsProgramRunning && !_currentLongRunning.IsCancellationRequested)
             {
                 StepInternal();
                 if (_breakpoints.Contains(_debuggerState.ExecutionContext.InstructionPointer)) break;
-                await Task.Delay(delay);
+                if (IsProgramRunning) await Task.Delay(delay);
             }
 
             IsExecuting = false;
