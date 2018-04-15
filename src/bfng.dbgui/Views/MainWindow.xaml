@@ -28,7 +28,7 @@
             Grid.Row="1"
             Margin="20,10,10,10"
             InstructionProgram="{Binding InstructionProgram}"
-            Symbols="{Binding SourceStatements}" />
+            Symbols="{Binding Symbols}" />
         <ListBox
             Grid.Row="1"
             Grid.Column="1"

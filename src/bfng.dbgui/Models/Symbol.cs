@@ -1,7 +1,5 @@
 ﻿using bfng.Parsing;
 using bfng.Runtime;
-using ReactiveUI;
-using System;
 
 namespace bfng.dbgui.Models
 {
@@ -19,18 +17,14 @@ namespace bfng.dbgui.Models
             Mutated = executionContext.MutatedInstructions[x, y] != null;
         }
 
-        public Symbol Assign(Symbol other)
+        public Symbol(InstructionProgram program, int x, int y)
         {
-            if (other == null) throw new ArgumentNullException(nameof(other));
-
-            X = other.X;
-            Y = other.Y;
-            Expression = other.Expression;
-            Instruction = other.Instruction;
-            Active = other.Active;
-            Mutated = other.Mutated;
-
-            return this;
+            X = x;
+            Y = y;
+            Expression = program.Expressions[x, y];
+            Instruction = program.Instructions[x, y];
+            Active = false;
+            Mutated = false;
         }
 
         public int X

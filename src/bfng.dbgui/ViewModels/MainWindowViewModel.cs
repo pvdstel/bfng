@@ -13,12 +13,11 @@ namespace bfng.dbgui.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        Debugger debugger = new Debugger();
+        readonly Debugger debugger = new Debugger();
+        readonly Lazy<List<Symbol>> programSymbols = new Lazy<List<Symbol>>(() => ProgramToSymbols(Program.BefungeProgram));
 
         public MainWindowViewModel()
         {
-            debugger = new Debugger();
-
             StartDebuggingCommand = ReactiveCommand.Create(() => debugger.StartDebugging(Program.BefungeProgram));
 
             IObservable<bool> debugging = debugger.WhenAnyValue(d => d.IsDebugging);
@@ -44,9 +43,9 @@ namespace bfng.dbgui.ViewModels
                 .ToProperty(this, x => x.OutputString, out _outputString);
             debugger.WhenAnyValue(d => d.CurrentState, c => c?.ExecutionContext.Stack)
                 .ToProperty(this, x => x.StackValues, out _stackValues);
-            debugger.WhenAnyValue(d => d.CurrentState, c => c != null ? ProgramToSourceStatements(c.ExecutionContext) : null)
-                .ToProperty(this, x => x.SourceStatements, out _sourceStatements);
-            debugger.WhenAnyValue(d => d.CurrentState, c => c?.ExecutionContext.Program)
+            debugger.WhenAnyValue(d => d.CurrentState, c => c != null ? ExecutionContextToSymbols(c.ExecutionContext) : programSymbols.Value)
+                .ToProperty(this, x => x.Symbols, out _symbols);
+            debugger.WhenAnyValue(d => d.CurrentState, c => c?.ExecutionContext.Program ?? Program.BefungeProgram)
                 .ToProperty(this, x => x.InstructionProgram, out _instructionProgram);
             debugger.WhenAnyValue(d => d.HistoryCount)
                 .ToProperty(this, x => x.HistoryCount, out _historyCount);
@@ -54,7 +53,20 @@ namespace bfng.dbgui.ViewModels
                 .ToProperty(this, x => x.Round, out _round);
         }
 
-        private List<Symbol> ProgramToSourceStatements(ExecutionContext executionContext)
+        private static List<Symbol> ProgramToSymbols(InstructionProgram program)
+        {
+            List<Symbol> result = new List<Symbol>();
+            for (int j = 0; j < program.Height; ++j)
+            {
+                for (int i = 0; i < program.Width; ++i)
+                {
+                    result.Add(new Symbol(program, i, j));
+                }
+            }
+            return result;
+        }
+
+        private static List<Symbol> ExecutionContextToSymbols(ExecutionContext executionContext)
         {
             List<Symbol> result = new List<Symbol>();
             for (int j = 0; j < executionContext.Program.Height; ++j)
@@ -91,8 +103,8 @@ namespace bfng.dbgui.ViewModels
         private readonly ObservableAsPropertyHelper<Stack<int>> _stackValues;
         public Stack<int> StackValues => _stackValues.Value;
 
-        private readonly ObservableAsPropertyHelper<List<Symbol>> _sourceStatements;
-        public List<Symbol> SourceStatements => _sourceStatements.Value;
+        private readonly ObservableAsPropertyHelper<List<Symbol>> _symbols;
+        public List<Symbol> Symbols => _symbols.Value;
 
         private readonly ObservableAsPropertyHelper<InstructionProgram> _instructionProgram;
         public InstructionProgram InstructionProgram => _instructionProgram.Value;
