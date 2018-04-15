@@ -29,6 +29,7 @@ namespace bfng.dbgui.Views
 
         public static readonly Rgba32 SymbolColorOnLight = Rgba32.Black;
         public static readonly Rgba32 SymbolColorOnDark = Rgba32.White;
+        public static readonly Rgba32 BackgroundColor = Rgba32.White;
         public static readonly SolidBrush<Rgba32> ActiveColor = new SolidBrush<Rgba32>(Rgba32.Yellow);
         public static readonly SolidBrush<Rgba32> BreakpointColor = new SolidBrush<Rgba32>(new Rgba32(150, 58, 70));
         public static readonly SolidBrush<Rgba32> MutatedColor = new SolidBrush<Rgba32>(Rgba32.Purple);
@@ -36,6 +37,9 @@ namespace bfng.dbgui.Views
 
         private static readonly Font SymbolFont = SystemFonts.CreateFont("Courier New", 14);
         private static readonly Font CoordinateFont = SystemFonts.CreateFont("Arial", 12);
+
+        private long _renderCycle = 0;
+        private object _renderLock = new object();
         #endregion
 
         #region Avalonia properties
@@ -114,27 +118,38 @@ namespace bfng.dbgui.Views
         public async void RenderCode()
         {
             if (InstructionProgram == null || _codeMap == null) return;
-            await Task.Yield();
 
             int w = _codeMapSize.Item1,
                 h = _codeMapSize.Item2;
+            long renderCycle = System.Threading.Interlocked.Increment(ref _renderCycle);
 
             using (MemoryStream ms = new MemoryStream())
             {
-                using (SixLabors.ImageSharp.Image<Rgba32> code = new SixLabors.ImageSharp.Image<Rgba32>(w, h))
+                await Task.Run(() =>
                 {
-                    foreach (Symbol symbol in _internalSymbols)
+                    using (SixLabors.ImageSharp.Image<Rgba32> code = new SixLabors.ImageSharp.Image<Rgba32>(w, h))
                     {
-                        RenderSymbol(symbol, code);
+                        code.Mutate(t => t.Fill(BackgroundColor));
+
+                        foreach (Symbol symbol in _internalSymbols)
+                        {
+                            RenderSymbol(symbol, code);
+                        }
+
+                        RenderGrid(code);
+                        code.Save(ms, new SixLabors.ImageSharp.Formats.Png.PngEncoder());
                     }
+                    ms.Seek(0, SeekOrigin.Begin);
+                });
 
-                    RenderGrid(code);
-                    code.Save(ms, new SixLabors.ImageSharp.Formats.Png.PngEncoder());
+                lock (_renderLock)
+                {
+                    if (renderCycle == _renderCycle)
+                    {
+                        Bitmap b = new Bitmap(ms);
+                        _codeMap.Source = b;
+                    }
                 }
-
-                ms.Seek(0, SeekOrigin.Begin);
-                Bitmap b = new Bitmap(ms);
-                _codeMap.Source = b;
             }
         }
 
