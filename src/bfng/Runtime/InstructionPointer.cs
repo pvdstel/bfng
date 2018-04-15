@@ -1,6 +1,8 @@
-﻿namespace bfng.Runtime
+﻿using System;
+
+namespace bfng.Runtime
 {
-    public struct InstructionPointer
+    public struct InstructionPointer : IEquatable<InstructionPointer>
     {
         public InstructionPointer(int x, int y)
         {
@@ -24,8 +26,40 @@
                 case ExecutionDirection.Up:
                     return new InstructionPointer(X, ((Y - 1) + height) % height);
                 default:
-                    throw new System.ArgumentOutOfRangeException(nameof(executionDirection));
+                    throw new ArgumentOutOfRangeException(nameof(executionDirection));
             }
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is InstructionPointer ip &&
+                   X == ip.X &&
+                   Y == ip.Y;
+        }
+
+        public bool Equals(InstructionPointer other)
+        {
+            return X == other.X &&
+                   Y == other.Y;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = 1861411795;
+            hashCode = hashCode * -1521134295 + base.GetHashCode();
+            hashCode = hashCode * -1521134295 + X.GetHashCode();
+            hashCode = hashCode * -1521134295 + Y.GetHashCode();
+            return hashCode;
+        }
+
+        public static bool operator ==(InstructionPointer pointer1, InstructionPointer pointer2)
+        {
+            return pointer1.Equals(pointer2);
+        }
+
+        public static bool operator !=(InstructionPointer pointer1, InstructionPointer pointer2)
+        {
+            return !(pointer1 == pointer2);
         }
     }
 }
