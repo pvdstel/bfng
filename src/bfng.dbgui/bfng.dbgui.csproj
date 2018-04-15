@@ -21,7 +21,7 @@
     <EmbeddedResource Include="Assets\*" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Assets\RobotoMono-Regular.ttf" />
+    <None Remove="Assets\OpenSans-Regular.ttf" />
     <None Remove="DebugCommands.xaml" />
     <None Remove="Views\Code.xaml" />
     <None Remove="Views\StatusBar.xaml" />

@@ -45,7 +45,7 @@ namespace bfng.dbgui.Views
 
         static Code()
         {
-            using (Stream fs = typeof(Code).Assembly.GetManifestResourceStream("bfng.dbgui.Assets.RobotoMono-Regular.ttf"))
+            using (Stream fs = typeof(Code).Assembly.GetManifestResourceStream("bfng.dbgui.Assets.OpenSans-Regular.ttf"))
             {
                 FontCollection fonts = new FontCollection();
                 FontFamily symbolFontFamily = fonts.Install(fs);
@@ -211,7 +211,7 @@ namespace bfng.dbgui.Views
             }
             if (!char.IsWhiteSpace(symbol.Expression))
             {
-                image.Mutate(t => t.DrawText(symbol.Expression.ToString(), SymbolFont, symbolColor, new PointF(x + 3, y - 5)));
+                image.Mutate(t => t.DrawText(symbol.Expression.ToString(), SymbolFont, symbolColor, new PointF(x + 3, y - 1)));
             }
         }
 
