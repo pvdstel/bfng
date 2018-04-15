@@ -32,6 +32,8 @@ namespace bfng.dbgui.ViewModels
 
             debugger.WhenAnyValue(d => d.IsDebugging)
                 .ToProperty(this, x => x.IsDebugging, out _isDebugging);
+            debugger.WhenAnyValue(d => d.IsProgramRunning)
+                .ToProperty(this, x => x.IsProgramRunning, out _isProgramRunning);
             debugger.WhenAnyValue(d => d.IsExecuting)
                 .ToProperty(this, x => x.IsExecuting, out _isExecuting);
             debugger.WhenAnyValue(d => d.CurrentState, c => (c?.ExecutionContext.InstructionPointer).GetValueOrDefault())
@@ -88,6 +90,9 @@ namespace bfng.dbgui.ViewModels
 
         private readonly ObservableAsPropertyHelper<bool> _isDebugging;
         public bool IsDebugging => _isDebugging.Value;
+
+        private readonly ObservableAsPropertyHelper<bool> _isProgramRunning;
+        public bool IsProgramRunning => _isProgramRunning.Value;
 
         private readonly ObservableAsPropertyHelper<bool> _isExecuting;
         public bool IsExecuting => _isExecuting.Value;

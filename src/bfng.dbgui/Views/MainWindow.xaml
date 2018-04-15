@@ -3,6 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:v="clr-namespace:bfng.dbgui.Views;assembly=bfng.dbgui"
     Title="bnfg Debugger UI"
+    Background="#EEEEF2"
     Icon="resm:bfng.dbgui.Assets.avalonia-logo.ico">
 
     <Design.Width>600</Design.Width>
