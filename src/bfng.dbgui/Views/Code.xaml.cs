@@ -37,11 +37,21 @@ namespace bfng.dbgui.Views
         public static readonly SolidBrush<Rgba32> MutatedColor = new SolidBrush<Rgba32>(Rgba32.Purple);
         public static readonly Rgba32 GridLineColor = new Rgba32(192, 192, 192);
 
-        private static readonly Font SymbolFont = SystemFonts.CreateFont("Courier New", 14);
+        private static readonly Font SymbolFont;
         private static readonly Font CoordinateFont = SystemFonts.CreateFont("Arial", 12);
 
         private long _renderCycle = 0;
         private object _renderLock = new object();
+
+        static Code()
+        {
+            using (Stream fs = typeof(Code).Assembly.GetManifestResourceStream("bfng.dbgui.Assets.RobotoMono-Regular.ttf"))
+            {
+                FontCollection fonts = new FontCollection();
+                FontFamily symbolFontFamily = fonts.Install(fs);
+                SymbolFont = new Font(symbolFontFamily, 16);
+            }
+        }
         #endregion
 
         #region Avalonia properties
@@ -201,7 +211,7 @@ namespace bfng.dbgui.Views
             }
             if (!char.IsWhiteSpace(symbol.Expression))
             {
-                image.Mutate(t => t.DrawText(symbol.Expression.ToString(), SymbolFont, symbolColor, new PointF(x + 3, y)));
+                image.Mutate(t => t.DrawText(symbol.Expression.ToString(), SymbolFont, symbolColor, new PointF(x + 3, y - 5)));
             }
         }
 
